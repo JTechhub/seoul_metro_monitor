@@ -1,24 +1,31 @@
 name: Seoul Metro Monitor
 on:
   schedule:
-    - cron: '0 13 * * *'  # 매일 한국시간 오후 10시 (UTC+9)
-  workflow_dispatch:  # 수동 실행 버튼
+    - cron: '0 13 * * *'
+  workflow_dispatch:
 
 jobs:
   monitor:
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
-      
+    - uses: actions/checkout@v3
+    
+    # 캐시에서 이전 기록 복원
+    - name: Restore seen posts cache
+      uses: actions/cache@v3
+      with:
+        path: seen_posts.json
+        key: seoul-metro-seen-posts-${{ github.run_number }}
+        restore-keys: |
+          seoul-metro-seen-posts-
+    
     - name: Set up Python
       uses: actions/setup-python@v3
       with:
         python-version: '3.9'
         
     - name: Install dependencies
-      run: |
-        pip install requests beautifulsoup4
+      run: pip install requests beautifulsoup4
         
     - name: Run Seoul Metro Monitor
       env:
