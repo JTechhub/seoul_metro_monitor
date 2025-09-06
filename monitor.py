@@ -16,7 +16,7 @@ class SeoulMetroMonitor:
         self.url = "http://www.seoulmetro.co.kr/kr/board.do?menuIdx=546"
         self.webhook_url = webhook_url
         self.keywords = ["특정 장애인 단체 집회시위", "장애인", "집회", "시위"]
-        self.target_date = datetime(2024, 9, 5)  # 2024년 9월 5일
+        self.target_date = datetime(2025, 9, 5)  # 2025년 9월 5일
         
     def fetch_board_content(self):
         """게시판 내용을 가져옴"""
