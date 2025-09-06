@@ -232,7 +232,7 @@ class SeoulMetroMonitor:
 # GitHub Actions 실행부
 if __name__ == "__main__":
     # 환경변수에서 웹훅 URL 가져오기
-    webhook_url = os.environ.get('WEBHOOK_URL')
+    webhook_url = os.environ.get('https://hook.us2.make.com/ephh41kddl4dn6798hx2b64n8bbmrka1')
     
     if not webhook_url:
         print("❌ WEBHOOK_URL 환경변수가 설정되지 않았습니다.")
