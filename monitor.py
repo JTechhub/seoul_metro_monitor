@@ -16,7 +16,6 @@ class SeoulMetroMonitor:
         self.url = "http://www.seoulmetro.co.kr/kr/board.do?menuIdx=546"
         self.webhook_url = webhook_url
         self.keywords = ["특정 장애인 단체 집회시위", "장애인", "집회", "시위"]
-        self.target_date = datetime(2025, 9, 5)  # 2025년 9월 5일
         
     def fetch_board_content(self):
         """게시판 내용을 가져옴"""
@@ -123,33 +122,13 @@ class SeoulMetroMonitor:
                 return True, keyword
         return False, None
     
-    def is_recent_post(self, date_str):
-        """9월 5일 이후 게시글인지 확인"""
+    def is_today_post(self, date_str):
+        """오늘 날짜 게시글만 체크 (가장 간단)"""
         try:
-            # 다양한 날짜 형식 처리
-            date_formats = [
-                "%Y-%m-%d",
-                "%Y.%m.%d", 
-                "%m/%d/%Y",
-                "%Y년 %m월 %d일",
-                "%Y-%m-%d %H:%M:%S",
-                "%Y.%m.%d %H:%M:%S"
-            ]
-            
-            for fmt in date_formats:
-                try:
-                    post_date = datetime.strptime(date_str.split()[0], fmt)
-                    return post_date >= self.target_date
-                except ValueError:
-                    continue
-            
-            # 날짜 파싱 실패시 최근 글로 간주
-            print(f"날짜 형식 인식 실패: {date_str}")
-            return True
-            
-        except Exception as e:
-            print(f"날짜 확인 실패: {e}")
-            return True
+            today = datetime.now().strftime('%Y-%m-%d')
+            return today in date_str
+        except:
+            return False
     
     def send_webhook(self, post_info, matched_keyword):
         """Make.com 웹훅으로 알림 전송"""
@@ -187,6 +166,7 @@ class SeoulMetroMonitor:
         print(f"🔍 [{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] 서울메트로 게시판 모니터링 시작")
         print(f"📍 URL: {self.url}")
         print(f"🔑 키워드: {', '.join(self.keywords)}")
+        print(f"⏰ 오늘 게시글만 확인")
         
         # 웹사이트 내용 가져오기
         html_content = self.fetch_board_content()
@@ -204,11 +184,14 @@ class SeoulMetroMonitor:
         
         # 키워드 매칭 게시글 찾기
         notifications_sent = 0
+        today_posts_count = 0
         
         for post in posts:
-            # 최근 게시글만 체크 (9월 5일 이후)
-            if not self.is_recent_post(post['date']):
+            # 오늘 날짜 게시글만 체크
+            if not self.is_today_post(post['date']):
                 continue
+                
+            today_posts_count += 1
             
             # 키워드 체크
             has_keyword, matched_keyword = self.check_keywords(post['title'])
@@ -222,10 +205,12 @@ class SeoulMetroMonitor:
                 if self.send_webhook(post, matched_keyword):
                     notifications_sent += 1
         
+        print(f"📈 오늘 게시글: {today_posts_count}개")
+        
         if notifications_sent > 0:
             print(f"✅ 총 {notifications_sent}개의 알림을 전송했습니다.")
         else:
-            print("📝 키워드와 매칭되는 새 게시글이 없습니다.")
+            print("📝 키워드와 매칭되는 오늘 게시글이 없습니다.")
         
         print("🏁 모니터링 완료\n")
 
