@@ -200,9 +200,15 @@ class SeoulMetroMonitor:
                 print(f"   제목: {post['title']}")
                 print(f"   키워드: {matched_keyword}")
                 print(f"   날짜: {post['date']}")
+                print(f"   링크: {post['link']}")
+                
+                # 게시글 상세 내용 가져오기
+                print("📄 게시글 내용을 가져오는 중...")
+                post_content = self.fetch_post_content(post['link'])
+                print(f"   내용 미리보기: {post_content[:100]}...")
                 
                 # 웹훅으로 알림 전송
-                if self.send_webhook(post, matched_keyword):
+                if self.send_webhook(post, matched_keyword, post_content):
                     notifications_sent += 1
         
         print(f"📈 오늘 게시글: {today_posts_count}개")
